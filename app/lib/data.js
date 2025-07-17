@@ -202,6 +202,22 @@ export async function getAllLocations() {
     return result.map(row => row.location);
 }
 
+export async function getCompanyData() {
+    const data = await sql`
+        SELECT
+        c.id,
+        c.name,
+        c.logo_url,
+        c.website,
+        COUNT(j.id) AS total_jobs
+        FROM companies c
+        LEFT JOIN jobs j ON c.id = j.company_id
+        GROUP BY c.id
+        ORDER BY total_jobs DESC;
+    `;
+
+    return data;
+}
 
 // 2. Job details by ID
 export async function getJobById(jobId) {
