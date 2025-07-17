@@ -112,9 +112,9 @@ export default function JobFilters({ categories, tags, locations }) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-2 py-4 items-center">
+    <div className="w-full flex gap-[3%] py-4 items-center">
       {/* Primary Filters */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="w-full flex gap-[2%]">
         {filterOptions.map((filter) => (
           <div
             key={filter.name}
