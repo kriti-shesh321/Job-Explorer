@@ -30,7 +30,7 @@ export default function JobDetails({ job }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-between items-center bg-white p-5 rounded-sm space-y-4">
+      <div className="flex flex-wrap justify-between items-center bg-white p-5 rounded-sm space-y-4 lg:space-y-0">
         <p className="text-gray-500">xx users bookmarked this job!</p>
         <button className="min-w-fit md:max-w-fit px-5 py-1 md:px-5 md:py-2 rounded-sm flex gap-3 items-center justify-between md:text-lg bg-blue-500 text-white">
           <span>Save Job </span>
