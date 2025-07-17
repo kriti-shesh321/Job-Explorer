@@ -249,9 +249,11 @@ export async function getJobById(jobId) {
         LEFT JOIN job_tag_mappings jtm ON j.id = jtm.job_id
         LEFT JOIN job_tags tag ON tag.id = jtm.tag_id
 
-        WHERE j.id = ${jobId} -- <-- You will need to parameterize this in your code
+        WHERE j.id = ${jobId}
         GROUP BY j.id, jt.name, c.name, c.logo_url, c.website;
     `;
+
+    return data[0];
 }
 
 // 3. Categories with job count

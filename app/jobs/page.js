@@ -3,7 +3,8 @@ import {
     getFilteredJobsPages,
     getAllCategories,
     getAllLocations,
-    getAllTags
+    getAllTags,
+    getJobById
 } from "@/app/lib/data";
 import JobPageClient from "../ui/jobs/JobPageClient";
 
@@ -35,6 +36,9 @@ export default async function Page(props) {
     const totalPages = await getFilteredJobsPages(query, filters);
     const jobs = await getFilteredJobs(query, currentPage, filters);
 
+    const selectedJobId = searchParams?.jobId || null;
+    const selectedJob = selectedJobId ? await getJobById(selectedJobId) : null;
+
     return (
         <JobPageClient
             jobs={jobs}
@@ -42,7 +46,7 @@ export default async function Page(props) {
             categories={categories}
             tags={tags}
             locations={locations}
+            currentJob={selectedJob && selectedJob}
         />
     );
 }
-

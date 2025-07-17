@@ -1,15 +1,18 @@
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import JobCard from "./JobCard";
 
-export default function JobList({ jobs, setSelectedJob }) {
-
+export default function JobList({ jobs }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const handleClick = (jobId) => {
     if (window.innerWidth < 1024) {
       router.push(`/jobs/${jobId}`);
     } else {
-      setSelectedJob(jobId);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('jobId', jobId);
+      router.replace(`${pathname}?${params.toString()}`);
     }
   };
 

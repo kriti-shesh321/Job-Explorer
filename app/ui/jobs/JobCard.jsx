@@ -1,11 +1,11 @@
 import { formatDate } from "@/app/lib/utils";
 import Image from "next/image";
-import { FaBookmark } from 'react-icons/fa6';
+import { FaRegBookmark, FaBookmark } from 'react-icons/fa6';
 
 export default function JobCard({ job }) {
   return (
     <div
-      className='flex gap-[2%] p-2 md:p-4 border rounded-lg cursor-pointer hover:shadow-md transition-all bg-white'
+      className='flex gap-[2%] p-2 md:p-4 rounded-lg cursor-pointer hover:shadow-md transition-all bg-white'
     >
 
       <Image
@@ -27,7 +27,7 @@ export default function JobCard({ job }) {
           </div>
           <button className="max-h-fit flex items-center justify-between text-sm md:text-md px-2 md:px-3 py-1 bg-blue-50 text-blue-800 space-x-2">
             <span>Save Job </span>
-            <FaBookmark />
+            <FaRegBookmark />
           </button>
         </div>
 
