@@ -1,60 +1,112 @@
 'use client';
 
+import Link from 'next/link';
+import { useState } from 'react';
+import NavLinks from "./NavLinks";
+import LogoutButton from './LogoutButton';
+import { Menu, X } from 'lucide-react';
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useSession } from 'next-auth/react';
 
-export default function NavBar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
-  
-  const linkClass = (path) =>
-    ` md:pr-20 lg:pr-0 lg:inline-block text-gray-500 hover:text-black pt-2 ${pathname === path ? "underline underline-offset-4" : ""
-    }`;
+export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user;
+
+
+  const toggleMenu = () => setMobileOpen(!mobileOpen);
+  const closeMenu = () => setMobileOpen(false);
 
   return (
-    <nav className="w-full flex items-center justify-between px-4 py-3 md:px-20 md:py-4">
-      <div className="flex justify-between md:justify-start md:space-x-20 items-center">
-        <div className="flex items-center space-x-2">
-          <Image
-            src="/logo.png"
-            width={32}
-            height={32}
-            alt="Job Explorer Logo"
-            className="h-8 w-auto"
-          />
-          <Link href="/" className="flex space-x-2 text-gray-900 font-semibold text-lg md:text-2xl">
+    <nav className="sticky top-0 z-50 bg-white px-4 py-3 lg:px-20 lg:py-4 shadow-sm">
+      <div className="flex justify-between items-center">
+
+        {/* Logo */}
+        <div className="flex gap-5">
+          <Image src="/logo.png" width={32} height={32} alt="Job Explorer Logo" />
+          <Link href="/" className="text-2xl font-bold text-gray-700">
             Job Explorer
           </Link>
         </div>
 
         <button
-          className="lg:hidden absolute top-5 right-4 md:right-0 text-gray-700"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
+          onClick={toggleMenu}
+          className="lg:hidden text-gray-700 hover:text-blue-600"
         >
-          {isOpen ? <X className="size-5 md:size-6" /> : <Menu className="size-5 md:size-6" />}
+          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <div className={isOpen
-          ? "absolute top-[8%] right-0 z-10 w-full items-end bg-white py-4 px-4 md:px-0 text-sm md:text-lg flex flex-col shadow-md"
-          : "max-h-0 hidden lg:flex lg:justify-between lg:gap-10 items-center"
-        }>
-          <Link href="/" className={linkClass("/")} onClick={(prev) => setIsOpen(!prev)}>Home</Link>
-          <Link href="/jobs" className={linkClass("/jobs")} onClick={(prev) => setIsOpen(!prev)}>Jobs</Link>
-          <Link href="/companies" className={linkClass("/companies")} onClick={(prev) => setIsOpen(!prev)}>Companies</Link>
-          <Link href="/about" className={linkClass("/about")} onClick={(prev) => setIsOpen(!prev)}>About Us</Link>
-          <Link href="/login" className="max-w-fit lg:hidden px-4 py-1 md:mr-20 mt-3 bg-blue-500 text-white font-semibold rounded-sm">Log In</Link>
+        {/* Desktop Links */}
+        <div className="hidden lg:flex lg:items-center lg:gap-6">
+          <div className="flex items-center gap-4">
+            <NavLinks />
+          </div>
+          {user ? (
+            <div className="flex gap-3 items-center">
+              <Link
+                href="/profile"
+                onClick={closeMenu}
+                className="text-gray-700 hover:text-blue-600"
+              >
+                <UserCircleIcon className="size-8 hover:text-blue-500" />
+              </Link>
+              <LogoutButton />
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Link
+                href="/login"
+                className="px-4 py-2 font-medium text-gray-700 hover:text-blue-600"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="hidden lg:flex space-x-3">
-        <Link href="#" className="px-4 py-2 font-medium text-gray-800">Log in</Link>
-        <Link href="#" className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md">Get Started</Link>
-      </div>
-
+      {/* md/sm screen Menu */}
+      {mobileOpen && (
+        <div className="lg:hidden mt-4 ">
+          <NavLinks onClick={closeMenu} />
+          {user ? (
+            <div className="flex flex-col gap-3 px-2 items-end">
+              <Link
+                href="/profile"
+                onClick={closeMenu}
+                className="text-gray-700 hover:text-blue-600"
+              >
+                <UserCircleIcon className="size-12 hover:text-blue-500" />
+              </Link>
+              <LogoutButton />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/login"
+                onClick={closeMenu}
+                className="text-gray-700 hover:text-blue-600"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                onClick={closeMenu}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md text-center"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 }

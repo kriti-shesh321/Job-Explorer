@@ -1,7 +1,7 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import JobCard from "./JobCard";
 
-export default function JobList({ jobs }) {
+export default function JobList({ jobs, bookmarkSyncMap, updateBookmarkSync }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -20,7 +20,12 @@ export default function JobList({ jobs }) {
     <div className="space-y-4">
       {jobs.map(job => (
         <div key={job.id} onClick={() => handleClick(job.id)}>
-          <JobCard job={job} />
+          <JobCard
+            job={job}
+            selected={job.id === searchParams.get('jobId')}
+            bookmarkSync={bookmarkSyncMap[job.id]}
+            onBookmarkToggle={() => updateBookmarkSync(job.id)}
+          />
         </div>
       ))}
     </div>

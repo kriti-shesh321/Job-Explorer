@@ -185,123 +185,230 @@ export async function getFilteredJobsPages(query, filters = {}) {
 }
 
 export async function getAllTags() {
-    return await sql`SELECT id, name FROM job_tags ORDER BY name`;
+    try {
+        return await sql`SELECT id, name FROM job_tags ORDER BY name`;
+    } catch (error) {
+        console.error('Error fetching tags:', error);
+        throw new Error('Could not load job tags.');
+    }
 }
 
 export async function getAllCategories() {
-    return await sql`SELECT id, name, icon FROM job_categories ORDER BY name`;
+    try {
+        return await sql`SELECT id, name, icon FROM job_categories ORDER BY name`;
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw new Error('Could not load job categories.');
+    }
 }
 
 export async function getAllLocations() {
-    const result = await sql`
-        SELECT DISTINCT location FROM jobs
-        WHERE location IS NOT NULL
-        ORDER BY location
-    `;
-
-    return result.map(row => row.location);
+    try {
+        const result = await sql`
+            SELECT DISTINCT location FROM jobs
+            WHERE location IS NOT NULL
+            ORDER BY location
+        `;
+        return result.map(row => row.location);
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+        throw new Error('Could not load locations.');
+    }
 }
 
 export async function getCompanyData() {
-    const data = await sql`
-        SELECT
-        c.id,
-        c.name,
-        c.logo_url,
-        c.website,
-        COUNT(j.id) AS total_jobs
-        FROM companies c
-        LEFT JOIN jobs j ON c.id = j.company_id
-        GROUP BY c.id
-        ORDER BY total_jobs DESC;
-    `;
-
-    return data;
+    try {
+        const data = await sql`
+            SELECT
+            c.id,
+            c.name,
+            c.logo_url,
+            c.website,
+            c.location,
+            COUNT(j.id) AS total_jobs
+            FROM companies c
+            LEFT JOIN jobs j ON c.id = j.company_id
+            GROUP BY c.id
+            ORDER BY total_jobs DESC;
+        `;
+        return data;
+    } catch (error) {
+        console.error('Error fetching company data:', error);
+        throw new Error('Could not load companies.');
+    }
 }
 
-// 2. Job details by ID
-export async function getJobById(jobId) {
-    const data = await sql`
-    SELECT 
-        j.id,
-        j.description,
-        j.roles_and_responsibilities,
-        j.location,
-        j.type,
-        j.posted_at,
-        j.salary_type,
-        j.salary_amount,
-        j.salary_currency,
-        j.salary_period,
+export async function getJobById(jobId, userEmail = null) {
+    try {
+        const data = await sql`
+            SELECT 
+                j.id,
+                j.description,
+                j.roles_and_responsibilities,
+                j.location,
+                j.type,
+                j.posted_at,
+                j.salary_type,
+                j.salary_amount,
+                j.salary_currency,
+                j.salary_period,
 
-        jt.name AS title,
-        
-        c.name AS company,
-        c.logo_url AS company_logo,
-        c.website AS company_website,
+                jt.name AS title,
+                
+                c.name AS company,
+                c.logo_url AS company_logo,
+                c.website AS company_website,
+                c.location AS company_location,
 
-        ARRAY_AGG(DISTINCT tag.name) AS tag_names,
-        ARRAY_AGG(DISTINCT tag.id) AS tag_ids
+                ARRAY_AGG(DISTINCT tag.name) AS tag_names,
+                ARRAY_AGG(DISTINCT tag.id) AS tag_ids,
 
-        FROM jobs j
-        JOIN job_titles jt ON j.title_id = jt.id
-        JOIN companies c ON j.company_id = c.id
-        LEFT JOIN job_tag_mappings jtm ON j.id = jtm.job_id
-        LEFT JOIN job_tags tag ON tag.id = jtm.tag_id
+                (SELECT COUNT(*) FROM bookmarks b WHERE b.job_id = j.id) AS bookmark_count,
 
-        WHERE j.id = ${jobId}
-        GROUP BY j.id, jt.name, c.name, c.logo_url, c.website;
-    `;
+                ${userEmail
+                ? sql`EXISTS (
+                        SELECT 1 FROM bookmarks b
+                        JOIN users u ON b.user_id = u.id
+                        WHERE b.job_id = j.id AND u.email = ${userEmail}
+                    ) AS bookmarked`
+                : sql`false AS bookmarked`
+            }
 
-    return data[0];
+            FROM jobs j
+            JOIN job_titles jt ON j.title_id = jt.id
+            JOIN companies c ON j.company_id = c.id
+            LEFT JOIN job_tag_mappings jtm ON j.id = jtm.job_id
+            LEFT JOIN job_tags tag ON tag.id = jtm.tag_id
+
+            WHERE j.id = ${jobId}
+            GROUP BY j.id, jt.name, c.name, c.logo_url, c.website, c.location;
+        `;
+
+        return data[0];
+    } catch (error) {
+        console.error('Error fetching job by ID:', error);
+        throw new Error('Could not load job details.');
+    }
 }
 
-// 3. Categories with job count
 export async function getCategoryCardData() {
-    const data = await sql`
-    SELECT 
-        jc.id,
-        jc.name,
-        jc.icon,
-        COUNT(j.id) AS job_count
-        FROM job_categories jc
-        LEFT JOIN jobs j ON jc.id = j.category_id
-        GROUP BY jc.id, jc.name, jc.icon
-        ORDER BY job_count DESC;
-    `;
-    return data;
+    try {
+        const data = await sql`
+            SELECT 
+                jc.id,
+                jc.name,
+                jc.icon,
+                COUNT(j.id) AS job_count
+            FROM job_categories jc
+            LEFT JOIN jobs j ON jc.id = j.category_id
+            GROUP BY jc.id, jc.name, jc.icon
+            ORDER BY job_count DESC;
+        `;
+        return data;
+    } catch (error) {
+        console.error('Error fetching category card data:', error);
+        throw new Error('Could not load category cards.');
+    }
 }
 
-// 4. Recent job cards (6 most recent by postedAt)
 export async function getRecentJobCardsData() {
+    try {
+        const data = await sql`
+            SELECT 
+                j.id,
+                jt.name AS title,
+                
+                json_build_object(
+                    'id', c.id,
+                    'name', c.name,
+                    'logo', c.logo_url
+                ) AS company,
 
-    const data = await sql`
-    SELECT 
-        j.id,
-        jt.name AS title,
-        
-        json_build_object(
-            'id', c.id,
-            'name', c.name,
-            'logo', c.logo_url
-        ) AS company,
+                j.salary_type,
+                j.salary_amount,
+                j.salary_currency,
+                j.salary_period,
 
-        j.salary_type,
-        j.salary_amount,
-        j.salary_currency,
-        j.salary_period,
+                j.location,
+                j.type,
+                j.posted_at,
+                j.description
 
-        j.location,
-        j.type,
-        j.posted_at,
-        j.description
+            FROM jobs j
+            JOIN job_titles jt ON j.title_id = jt.id
+            JOIN companies c ON j.company_id = c.id
 
-        FROM jobs j
-        JOIN job_titles jt ON j.title_id = jt.id
-        JOIN companies c ON j.company_id = c.id
-
-        ORDER BY j.posted_at DESC
-        LIMIT 6;
-    `;
-    return data;
+            ORDER BY j.posted_at DESC
+            LIMIT 6;
+        `;
+        return data;
+    } catch (error) {
+        console.error('Error fetching recent jobs:', error);
+        throw new Error('Could not load recent jobs.');
+    }
 };
+
+export async function getUser(email) {
+    try {
+        const user = await sql`SELECT * FROM users WHERE email=${email}`;
+        return user[0];
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        throw new Error('Failed to fetch user.');
+    }
+}
+
+export async function createUser({ email, password }) {
+    try {
+        const hashed = await bcrypt.hash(password, 10);
+        const newUser = await sql`
+            INSERT INTO users (email, password, image_url)
+            VALUES (${email}, ${hashed}, "test.png")
+            RETURNING *;
+        `;
+        return newUser[0];
+    } catch (error) {
+        console.error('Failed to create user:', error);
+        throw new Error('Failed to create user.');
+    }
+}
+
+export async function addBookmark(userId, jobId) {
+    try {
+        const result = await sql`
+            INSERT INTO bookmarks (user_id, job_id)
+            VALUES (${userId}, ${jobId})
+            RETURNING *;
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Failed to add bookmark:', error);
+        throw new Error('Could not bookmark job.');
+    }
+}
+
+export async function getUserBookmarks(userId) {
+    try {
+        const rows = await sql`
+            SELECT job_id FROM bookmarks WHERE user_id = ${userId}
+        `;
+        return rows.map(row => row.job_id);
+    } catch (error) {
+        console.error('Failed to fetch bookmarks:', error);
+        return [];
+    }
+}
+
+export async function isJobBookmarked(userId, jobId) {
+    try {
+        const res = await sql`
+            SELECT 1 FROM bookmarks 
+            WHERE user_id = ${userId} AND job_id = ${jobId}
+            LIMIT 1
+        `;
+        return res.length > 0;
+    } catch (error) {
+        console.error('Failed to fetch bookmark status: ', error);
+        throw new Error('Error fetching bookmark status.');
+    }
+}

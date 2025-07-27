@@ -7,12 +7,16 @@ import {
     getJobById
 } from "@/app/lib/data";
 import JobPageClient from "../ui/jobs/JobPageClient";
+import { auth } from "@/auth";
 
 export const metadata = {
     title: "Jobs"
 };
 
 export default async function Page(props) {
+    const session = await auth(); 
+    const userEmail = session?.user?.email ?? null;
+
     const [categories, tags, locations] = await Promise.all([
         getAllCategories(),
         getAllTags(),
@@ -37,7 +41,7 @@ export default async function Page(props) {
     const jobs = await getFilteredJobs(query, currentPage, filters);
 
     const selectedJobId = searchParams?.jobId || null;
-    const selectedJob = selectedJobId ? await getJobById(selectedJobId) : null;
+    const selectedJob = selectedJobId ? await getJobById(selectedJobId, userEmail) : null;
 
     return (
         <JobPageClient

@@ -5,15 +5,24 @@ import Search from "./Search";
 import Pagination from "./Pagination";
 import JobFilters from "./Filters";
 import JobDetails from "./JobDetails";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 export default function JobPageClient({ jobs, totalPages, categories, tags, locations, currentJob }) {
+  const [bookmarkSyncMap, setBookmarkSyncMap] = useState({});
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const jobId = searchParams.get('jobId');
+
+  const updateBookmarkSync = (jobId) => {
+    setBookmarkSyncMap((prev) => ({
+      ...prev,
+      [jobId]: Date.now()
+    }));
+  };
 
   useEffect(() => {
     const screenIsLarge = window.innerWidth >= 1024;
@@ -27,7 +36,6 @@ export default function JobPageClient({ jobs, totalPages, categories, tags, loca
         return;
       }
 
-      // If jobId is not part of current filtered jobs, reset to first job
       const jobExists = jobs.some((job) => job.id === jobId);
       if (!jobExists && jobs.length > 0) {
         params.set('jobId', jobs[0].id);
@@ -53,11 +61,19 @@ export default function JobPageClient({ jobs, totalPages, categories, tags, loca
 
         <div className="flex flex-col lg:flex-row w-full h-screen bg-gray-100 px-2">
           <div className="w-full lg:w-[45%] h-full overflow-y-auto pr-2 py-2">
-            <JobList jobs={jobs} />
+            <JobList
+              jobs={jobs}
+              bookmarkSyncMap={bookmarkSyncMap}
+              updateBookmarkSync={updateBookmarkSync}
+            />
           </div>
           <div className="hidden lg:block w-[55%] h-screen overflow-y-auto py-2 bg-gray-100">
             {currentJob ? (
-              <JobDetails job={currentJob} />
+              <JobDetails
+                job={currentJob}
+                bookmarkSyncMap={bookmarkSyncMap}
+                updateBookmarkSync={updateBookmarkSync}
+              />
             ) : (
               <div className="p-10 text-gray-500">Select a job to view details.</div>
             )}

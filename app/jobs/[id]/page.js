@@ -1,14 +1,15 @@
-import JobDetails from "@/app/ui/jobs/JobDetails";
-import { getJobById } from '@/app/lib/data';
+import { getJobById, isJobBookmarked } from '@/app/lib/data';
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
+import JobDetailsClient from "@/app/ui/jobs/JobDetailsClient";
 
 export const metadata = {
     title: "Job"
 };
 
-export default async function JobDetailPage({ params }) {
-    const job = await getJobById(params.id);
+export default async function JobPage({ params }) {
+    const id = await params.id;
+    const job = await getJobById(id);
 
     return (
         <div className="w-full p-3 md:py-10 md:px-20 bg-gray-100">
@@ -16,7 +17,7 @@ export default async function JobDetailPage({ params }) {
                 <FaArrowLeft />
                 <span>Back to Jobs</span>
             </Link>
-            <JobDetails job={job} />
+            <JobDetailsClient job={job} />
         </div>
     );
 }

@@ -1,8 +1,23 @@
 import { formatDate } from "@/app/lib/utils";
 import Image from "next/image";
-import { FaRegBookmark, FaBookmark } from 'react-icons/fa6';
+import { BookmarkButton } from "./BookmarkButton";
+import { useBookmark } from "@/app/hooks/useBookmark";
+import { useEffect } from "react";
 
-export default function JobCard({ job }) {
+export default function JobCard({ job, selected, bookmarkSync, onBookmarkToggle }) {
+  const { isBookmarked, toggleBookmark, isLoading, refetch } = useBookmark(job.id);
+
+  useEffect(() => {
+    if (selected || bookmarkSync) {
+      refetch();
+    }
+  }, [bookmarkSync, selected]);
+
+  const handleToggle = async (e) => {
+    await toggleBookmark();
+    onBookmarkToggle?.();
+  };
+
   return (
     <div
       className='flex gap-[2%] p-2 md:p-4 rounded-lg cursor-pointer hover:shadow-md transition-all bg-white'
@@ -25,10 +40,12 @@ export default function JobCard({ job }) {
               {job.company_name}
             </div>
           </div>
-          <button className="max-h-fit flex items-center justify-between text-sm md:text-md px-2 md:px-3 py-1 bg-blue-50 text-blue-800 space-x-2">
-            <span>Save Job </span>
-            <FaRegBookmark />
-          </button>
+          <BookmarkButton
+            jobId={job.id}
+            isBookmarked={isBookmarked}
+            toggleBookmark={handleToggle}
+            isLoading={isLoading}
+          />
         </div>
 
         <div className="mt-2 flex flex-wrap gap-2 text-2xs md:text-xs items-center">

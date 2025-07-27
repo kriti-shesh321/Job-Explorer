@@ -1,12 +1,45 @@
 import Image from "next/image";
-import { FaCalendar, FaRegClock, FaWallet } from "react-icons/fa";
-import { FaLocationDot, FaRegBookmark } from "react-icons/fa6";
+import { FaCalendar, FaRegClock, FaWallet, FaLaptop } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 import { formatDate } from "@/app/lib/utils";
+import { BookmarkButton } from "./BookmarkButton";
+import { useBookmark } from "@/app/hooks/useBookmark";
+import { useEffect } from "react";
 
-export default function JobDetails({ job }) {
+export default function JobDetails({ job,
+  isBookmarked,
+  toggleBookmark,
+  isLoading,
+  bookmarkSync,
+  updateBookmarkSync
+}) {
+  const shouldUseInternalBookmark = isBookmarked === undefined;
+
+  const {
+    isBookmarked: internalBookmarked,
+    toggleBookmark: internalToggle,
+    isLoading: internalLoading,
+    refetch,
+  } = useBookmark(job.id);
+
+  useEffect(() => {
+    if (shouldUseInternalBookmark && bookmarkSync) {
+      refetch();
+    }
+  }, [bookmarkSync]);
+
+  const handleBookmark = async () => {
+    if (shouldUseInternalBookmark) {
+      await internalToggle();
+    } else {
+      await toggleBookmark();
+    }
+    updateBookmarkSync?.(job.id);
+  };
+
 
   if (!job) return <div className="text-lg text-center lg:text-left font-bold text-gray-500">Job Not found.</div>;
-  
+
   return (
     <div className="w-full py-6 lg:px-2 lg:py-0 space-y-3">
       <div className="flex flex-col space-y-[3%] bg-white p-5 rounded-sm border-blue-500 border-l-6 lg:border-none">
@@ -25,32 +58,45 @@ export default function JobDetails({ job }) {
         </div>
 
         <div className="text-gray-500">
-          <p className="flex gap-2 items-center"><FaLocationDot /> {job.location}</p>
+          <p className="flex gap-2 items-center"><FaLocationDot /> {job.company_location}</p>
           <p className="flex gap-2 items-center"><FaCalendar /> Updated on:  {formatDate(job.posted_at)}</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-between items-center bg-white p-5 rounded-sm space-y-4 lg:space-y-0">
-        <p className="text-gray-500">xx users bookmarked this job!</p>
-        <button className="min-w-fit md:max-w-fit px-5 py-1 md:px-5 md:py-2 rounded-sm flex gap-3 items-center justify-between md:text-lg bg-blue-500 text-white">
-          <span>Save Job </span>
-          <FaRegBookmark />
-        </button>
+      <div className="flex flex-1 justify-between items-center bg-white p-5 rounded-sm space-y-4 lg:space-y-0">
+        <p className="text-gray-500 mb-0">{job.bookmark_count} users bookmarked this job!</p>
+        <BookmarkButton
+          jobId={job.id}
+          isBookmarked={shouldUseInternalBookmark ? internalBookmarked : isBookmarked}
+          toggleBookmark={handleBookmark}
+          isLoading={shouldUseInternalBookmark ? internalLoading : isLoading}
+        />
       </div>
 
-      <div className="flex flex-col gap-6 bg-white px-5 py-4 rounded-sm">
+      <div className="flex flex-col gap-4 bg-white px-5 py-4 rounded-sm text-sm">
         <div className="flex gap-4 items-center">
-          <div className="p-4 bg-gray-100 rounded-lg">
-            <FaRegClock className="text-2xl text-gray-500" />
+          <div className="p-3 bg-gray-100 rounded-lg">
+            <FaRegClock className="text-lg text-gray-500" />
           </div>
           <div>
-            <p className="text-gray-500">Work Hours</p>
+            <p className="text-gray-500">Type</p>
             <p className="text-gray-900">{job.type}</p>
           </div>
         </div>
+
+        <div className="flex gap-4 items-center">
+          <div className="p-3 bg-gray-100 rounded-lg">
+            <FaLaptop className="text-lg text-gray-500" />
+          </div>
+          <div>
+            <p className="text-gray-500">Work Mode</p>
+            <p className="text-gray-900">{job.location}</p>
+          </div>
+        </div>
+
         <div className="flex gap-3 items-center text-gray-500">
-          <div className="p-4 bg-gray-100 rounded-lg">
-            <FaWallet className="text-2xl text-gray-500" />
+          <div className="p-3 bg-gray-100 rounded-lg">
+            <FaWallet className="text-lg text-gray-500" />
           </div>
           <div>
             <p className="text-gray-500">Salary</p>
