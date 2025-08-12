@@ -21,7 +21,6 @@ export default function Page() {
         <RecentJobs />
       </Suspense>
 
-
       <CTABanner />
     </main>
   );

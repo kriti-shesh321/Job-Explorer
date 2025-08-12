@@ -12,6 +12,7 @@ export default function JobFilters({ categories, tags, locations }) {
   const [openFilter, setOpenFilter] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [pendingClearKey, setPendingClearKey] = useState(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -20,7 +21,7 @@ export default function JobFilters({ categories, tags, locations }) {
   useEffect(() => {
     const initial = {};
     for (const [key, value] of searchParams.entries()) {
-      if (key !== 'page') initial[key] = value.split(',');
+      if (key !== 'page' && key !== 'jobId') initial[key] = value.split(',');
     }
     setSelectedFilters(initial);
   }, [searchParams]);
@@ -60,19 +61,26 @@ export default function JobFilters({ categories, tags, locations }) {
   };
 
   const clearFilter = (key) => {
-    setSelectedFilters((prev) => {
-      const updated = { ...prev };
-      delete updated[key];
+    setPendingClearKey(key);
+  };
+
+  useEffect(() => {
+    if (pendingClearKey) {
+      setSelectedFilters((prev) => {
+        const updated = { ...prev };
+        delete updated[pendingClearKey];
+        return updated;
+      });
 
       const params = new URLSearchParams(searchParams);
-      params.delete(key);
+      params.delete(pendingClearKey);
       params.set('page', '1');
       router.replace(`${pathname}?${params.toString()}`);
 
-      return updated;
-    });
-  };
-
+      setPendingClearKey(null);
+      setOpenFilter(null);
+    }
+  }, [pendingClearKey, router, pathname, searchParams]);
 
   const filterOptions = [
     {
