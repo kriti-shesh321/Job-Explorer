@@ -1,4 +1,4 @@
-import { getJobById, isJobBookmarked } from '@/app/lib/data';
+import { getJobById } from '@/app/lib/data';
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
 import JobDetailsClient from "@/app/ui/jobs/JobDetailsClient";

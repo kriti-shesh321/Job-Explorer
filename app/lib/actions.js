@@ -39,37 +39,66 @@ export async function logout() {
     await signOut({ redirectTo: '/login' });
 }
 
-// export async function addBookmark(jobId) {
-//     const session = await auth();
-//     const email = session?.user?.email;
+export async function updateUserDetails(_, formData, userId) {
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const password = formData.get('password');
 
-//     if (!email) {
-//         throw new Error('Unauthorized');
-//     }
+    try {
+        if (!name || !email) {
+            return { error: 'Name and Email are required' };
+        }
 
-//     const user = await sql`SELECT id FROM users WHERE email = ${email}`;
-//     if (!user[0]) throw new Error('User not found');
+        if (password) {
+            const hashed = await hash(password, 10);
+            await sql`
+                UPDATE users
+                SET name = ${name}, email = ${email}, password = ${hashed}
+                WHERE id = ${userId}
+            `;
+        } else {
+            await sql`
+                UPDATE users
+                SET name = ${name}, email = ${email}
+                WHERE id = ${userId}
+            `;
+        }
 
-//     await sql`
-//     INSERT INTO bookmarks (user_id, job_id)
-//     VALUES (${user[0].id}, ${jobId})
-//     ON CONFLICT DO NOTHING;
-//   `;
-// }
+        return { success: true };
+    } catch (err) {
+        console.error('Update failed:', err);
+        return { error: 'Update failed' };
+    }
+}
 
-// export async function removeBookmark(jobId) {
-//     const session = await auth();
-//     const email = session?.user?.email;
+export async function updateUserAvatar(userId, avatarFileName) {
+    try {
+        if (!avatarFileName) {
+            return { error: 'Avatar file is required' };
+        }
 
-//     if (!email) {
-//         throw new Error('Unauthorized');
-//     }
+        await sql`
+            UPDATE users
+            SET image_url = ${`/users/avatars/${avatarFileName}`}
+            WHERE id = ${userId}
+        `;
 
-//     const user = await sql`SELECT id FROM users WHERE email = ${email}`;
-//     if (!user[0]) throw new Error('User not found');
+        return { success: true };
+    } catch (err) {
+        console.error('Avatar update failed:', err);
+        return { error: 'Avatar update failed' };
+    }
+}
 
-//     await sql`
-//     DELETE FROM bookmarks
-//     WHERE user_id = ${user[0].id} AND job_id = ${jobId};
-//   `;
-// }
+export async function deleteAccount(_, userId) {
+    try {
+        await sql`
+            DELETE FROM users
+            WHERE id = ${userId}
+        `;
+        await signOut({ redirectTo: '/signup' });
+    } catch (err) {
+        console.error('Account deletion failed:', err);
+        return { error: 'Deletion failed' };
+    }
+}

@@ -14,7 +14,6 @@ export default function Navbar() {
   const { data: session } = useSession();
   const user = session?.user;
 
-
   const toggleMenu = () => setMobileOpen(!mobileOpen);
   const closeMenu = () => setMobileOpen(false);
 
@@ -23,19 +22,30 @@ export default function Navbar() {
       <div className="flex justify-between items-center">
 
         {/* Logo */}
-        <div className="flex gap-5">
-          <Image src="/logo.png" width={32} height={32} alt="Job Explorer Logo" />
-          <Link href="/" className="text-2xl font-bold text-gray-700">
+        <div className="flex gap-1 md:gap-5">
+          <Image src="/logo.png" width={32} height={32} alt="Job Explorer Logo" className="size-6 md:size-auto" />
+          <Link href="/" className="text-md md:text-2xl font-bold text-gray-700">
             Job Explorer
           </Link>
         </div>
 
-        <button
-          onClick={toggleMenu}
-          className="lg:hidden text-gray-700 hover:text-blue-600"
-        >
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          {user &&
+            <Link
+              href="/profile"
+              onClick={closeMenu}
+              className="text-gray-600 hover:text-blue-600"
+            >
+              <UserCircleIcon className="size-6" />
+            </Link>
+          }
+          <button
+            onClick={toggleMenu}
+            className="text-gray-700 hover:text-blue-600"
+          >
+            {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
+        </div>
 
         {/* Desktop Links */}
         <div className="hidden lg:flex lg:items-center lg:gap-6">
@@ -43,13 +53,13 @@ export default function Navbar() {
             <NavLinks />
           </div>
           {user ? (
-            <div className="flex gap-3 items-center">
+            <div className="flex items-center gap-6">
               <Link
                 href="/profile"
                 onClick={closeMenu}
                 className="text-gray-700 hover:text-blue-600"
               >
-                <UserCircleIcon className="size-8 hover:text-blue-500" />
+                <UserCircleIcon className="size-8  hover:text-blue-500" />
               </Link>
               <LogoutButton />
             </div>
@@ -63,7 +73,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600"
               >
                 Get Started
               </Link>
@@ -77,14 +87,7 @@ export default function Navbar() {
         <div className="lg:hidden mt-4 ">
           <NavLinks onClick={closeMenu} />
           {user ? (
-            <div className="flex flex-col gap-3 px-2 items-end">
-              <Link
-                href="/profile"
-                onClick={closeMenu}
-                className="text-gray-700 hover:text-blue-600"
-              >
-                <UserCircleIcon className="size-12 hover:text-blue-500" />
-              </Link>
+            <div className="flex flex-col gap-3 items-end">
               <LogoutButton />
             </div>
           ) : (

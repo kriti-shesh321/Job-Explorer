@@ -346,30 +346,22 @@ export async function getRecentJobCardsData() {
         console.error('Error fetching recent jobs:', error);
         throw new Error('Could not load recent jobs.');
     }
-};
+}
 
-export async function getUser(email) {
+export async function getUser(identifier) {
     try {
-        const user = await sql`SELECT * FROM users WHERE email=${email}`;
-        return user[0];
+        let user;
+
+        if (identifier.includes('@')) {
+            user = await sql`SELECT * FROM users WHERE email = ${identifier}`;
+        } else {
+            user = await sql`SELECT * FROM users WHERE id = ${identifier}`;
+        }
+
+        return user[0] || null;
     } catch (error) {
         console.error('Failed to fetch user:', error);
         throw new Error('Failed to fetch user.');
-    }
-}
-
-export async function createUser({ email, password }) {
-    try {
-        const hashed = await bcrypt.hash(password, 10);
-        const newUser = await sql`
-            INSERT INTO users (email, password, image_url)
-            VALUES (${email}, ${hashed}, "test.png")
-            RETURNING *;
-        `;
-        return newUser[0];
-    } catch (error) {
-        console.error('Failed to create user:', error);
-        throw new Error('Failed to create user.');
     }
 }
 
@@ -387,18 +379,6 @@ export async function addBookmark(userId, jobId) {
     }
 }
 
-export async function getUserBookmarks(userId) {
-    try {
-        const rows = await sql`
-            SELECT job_id FROM bookmarks WHERE user_id = ${userId}
-        `;
-        return rows.map(row => row.job_id);
-    } catch (error) {
-        console.error('Failed to fetch bookmarks:', error);
-        return [];
-    }
-}
-
 export async function isJobBookmarked(userId, jobId) {
     try {
         const res = await sql`
@@ -410,5 +390,37 @@ export async function isJobBookmarked(userId, jobId) {
     } catch (error) {
         console.error('Failed to fetch bookmark status: ', error);
         throw new Error('Error fetching bookmark status.');
+    }
+}
+
+export async function getUserBookmarks(userId) {
+    try {
+        const rows = await sql`
+      SELECT 
+        jobs.id,
+        jobs.posted_at,
+        companies.name AS company_name,
+        companies.logo_url AS company_logo,
+        job_titles.name AS job_title
+      FROM bookmarks
+      JOIN jobs ON jobs.id = bookmarks.job_id
+      JOIN companies ON companies.id = jobs.company_id
+      JOIN job_titles ON job_titles.id = jobs.title_id
+      WHERE bookmarks.user_id = ${userId}
+      ORDER BY jobs.posted_at DESC
+    `;
+
+        return rows.map(row => ({
+            id: row.id,
+            title: row.job_title,
+            company: {
+                name: row.company_name,
+                logo: row.company_logo,
+            },
+            posted_at: row.posted_at,
+        }));
+    } catch (error) {
+        console.error('Failed to fetch detailed bookmarked jobs:', error);
+        return [];
     }
 }
