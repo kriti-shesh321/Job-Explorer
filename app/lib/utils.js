@@ -1,55 +1,63 @@
 import {
-    Paintbrush,
-    Megaphone,
-    Code,
-    Box,
-    Headphones,
-    BarChart,
-    Briefcase,
-    Users
+  Paintbrush,
+  Megaphone,
+  Code,
+  Box,
+  Headphones,
+  BarChart,
+  Briefcase,
+  Users
 } from 'lucide-react';
-import millify from "millify";
+import pkg from 'millify';
+
+const millify = pkg.default;
 
 export const iconMap = {
-    Paintbrush,
-    Megaphone,
-    Code,
-    Box,
-    Headphones,
-    BarChart,
-    Briefcase,
-    Users
+  Paintbrush,
+  Megaphone,
+  Code,
+  Box,
+  Headphones,
+  BarChart,
+  Briefcase,
+  Users
 };
 
 export function getCategoryIcon(iconName) {
-    return iconMap[iconName] || Users;
+  return iconMap[iconName] || Users;
 };
 
 export function formatSalary(salary = {}) {
-    const { amount, currency = 'USD', period, type } = salary;
+  const { amount, currency = 'USD', period, type } = salary;
 
-    if (!type) return 'N/A';
+  if (!type) return 'N/A';
 
-    if (type === 'negotiable') return 'Negotiable';
-    if (type === 'performance-based') return 'Performance Based';
+  if (type === 'negotiable') return 'Negotiable';
+  if (type === 'performance-based') return 'Performance Based';
 
-    if (type === 'fixed' && amount != null) {
-        const formattedAmount = millify(Number(amount), { precision: 1 });
-        const symbol = currency === 'USD' ? '$' : currency;
-        return `${symbol} ${formattedAmount}/${period}`;
-    }
+  if (typeof millify !== 'function') {
+    throw new Error('Millify import failed');
+  }
 
-    return 'N/A';
+  if (type === 'fixed' && amount != null) {
+    console.log('Formatting salary:', { amount, currency, period });
+    const formattedAmount = millify(Number(amount), { precision: 1 });
+    const symbol = currency === 'USD' ? '$' : currency;
+    console.log('Formatted salary:', `${symbol} ${formattedAmount}/${period}`);
+    return `${symbol} ${formattedAmount}/${period}`;
+  }
+
+  return 'N/A';
 }
 
 export function formatDate(date) {
-    if (!date) return 'N/A';
-    const parsed = new Date(date);
-    return parsed.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
+  if (!date) return 'N/A';
+  const parsed = new Date(date);
+  return parsed.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export const generatePagination = (currentPage, totalPages) => {
