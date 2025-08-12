@@ -1,5 +1,4 @@
-const shimmer =
-  'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
+const shimmer = 'relative overflow-hidden shimmer';
 
 export function InputSkeleton() {
     return (
@@ -18,14 +17,6 @@ export function MultiInputSkeleton({ num }) {
             ))}
         </div>
     );
-}
-
-export function HeroSkeleton() {
-    return (
-        <div className="">
-
-        </div>
-    )
 }
 
 export function CategoryCardSkeleton() {
@@ -94,15 +85,108 @@ export function HomepageSkeleton() {
             className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-100 p-2 shadow-sm`
             }
         >
-            <div className="flex p-[20%] justify-between">
-                <div className="size-[50%] rounded-sm bg-gray-200">
-                    <div className="ml-2 h-6 w-16 rounded-md bg-gray-200 text-sm font-medium" />
+            <div className="w-full max-w-6xl mx-auto p-6 space-y-8 animate-pulse">
+                {/* Large header section */}
+                <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+
+                {/* Big hero/image section */}
+                <div className="h-64 bg-gray-200 rounded-lg"></div>
+
+                {/* 3-column cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="bg-gray-200 rounded-lg h-40"></div>
+                    ))}
                 </div>
-            </div>
-            <div className="flex items-center justify-center truncate rounded-xl bg-white px-4 py-8">
-                <div className="h-7 w-20 rounded-md bg-gray-200" />
+
+                {/* Text blocks */}
+                <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                    <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/6"></div>
+                </div>
+
+                {/* Another card row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className="bg-gray-200 rounded-lg h-32"></div>
+                    ))}
+                </div>
             </div>
         </div >
     );
 
+}
+
+export function JobListSkeleton({ count = 5 }) {
+    return (
+        <div className="space-y-3">
+            {Array.from({ length: count }).map((_, i) => (
+                <div
+                    key={i}
+                    className={`${shimmer} relative bg-white p-4 rounded-md shadow-sm`}
+                >
+                    <div className="flex justify-between items-center mb-3">
+                        <div className="h-5 w-1/2 bg-gray-200 rounded"></div>
+                        <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 w-1/3 bg-gray-200 rounded"></div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+export function JobDetailsSkeleton() {
+    return (
+        <div className={`${shimmer} relative bg-white p-6 rounded-md shadow-sm min-h-screen`}>
+            <div className="h-8 w-2/3 bg-gray-200 rounded mb-4"></div>
+            <div className="h-4 w-1/3 bg-gray-200 rounded mb-6"></div>
+            <div className="space-y-3 mb-10">
+                {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-3 w-full bg-gray-200 rounded"></div>
+                ))}
+            </div>
+            <div className="h-4 w-1/2 bg-gray-200 rounded mb-6"></div>
+            <div className="h-4 w-1/2 bg-gray-200 rounded mb-6"></div>
+        </div>
+    );
+}
+
+export function JobsPageSkeleton() {
+    return (
+        <div className="flex flex-col lg:flex-row gap-4 mx-2 md:mx-20 py-10 lg:py-20">
+            <div className="w-full lg:w-[45%]">
+                <JobListSkeleton count={6} />
+            </div>
+            <div className="hidden lg:block w-[55%]">
+                <JobDetailsSkeleton />
+            </div>
+        </div>
+    );
+}
+
+export function CompaniesSkeleton() {
+    return (
+        <section className="relative w-full min-h-screen bg-[url('/image.png')] bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400 bg-cover bg-center overflow-hidden py-14 px-6">
+            <div className="relative z-10 max-w-6xl mx-auto">
+                <div className="h-10 bg-white/50 rounded mx-auto mb-14 w-2/3 animate-pulse"></div>
+
+                <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="bg-white/80 backdrop-blur-md rounded-xl p-6 flex flex-col items-center text-center animate-pulse"
+                        >
+                            <div className="w-12 h-12 bg-gray-300 rounded mb-4"></div>
+                            <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div className="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                            <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
 }

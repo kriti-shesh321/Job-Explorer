@@ -7,6 +7,7 @@ import JobFilters from "./Filters";
 import JobDetails from "./JobDetails";
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { JobDetailsSkeleton } from "@/app/skeletons";
 
 export default function JobPageClient({ jobs, totalPages, categories, tags, locations, currentJob }) {
   const [bookmarkSyncMap, setBookmarkSyncMap] = useState({});
@@ -75,7 +76,7 @@ export default function JobPageClient({ jobs, totalPages, categories, tags, loca
                 updateBookmarkSync={updateBookmarkSync}
               />
             ) : (
-              <div className="p-10 text-gray-500">Select a job to view details.</div>
+              <JobDetailsSkeleton />
             )}
           </div>
         </div>
