@@ -95,7 +95,7 @@ const jobTags = [
     { name: 'Leadership' }
 ];
 
-export function generateJobs({ categories, companies, jobTitles, jobTags }) {
+function generateJobs({ categories, companies, jobTitles, jobTags }) {
     const locations = ["Remote", "On-site", "Hybrid"];
     const types = ["Full-Time", "Part-Time", "Contract-based", "Internship"];
     const salaryTypes = ["fixed", "negotiable", "performance-based"];
