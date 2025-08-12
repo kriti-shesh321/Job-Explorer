@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { deleteAccount } from '@/app/lib/actions';
+import { signOut } from "next-auth/react";
 
 export default function DeleteAccount({ userId }) {
     const [showConfirm, setShowConfirm] = useState(false);
@@ -9,7 +10,12 @@ export default function DeleteAccount({ userId }) {
 
     const handleDelete = async () => {
         setLoading(true);
-        await deleteAccount(userId);
+        const res = await deleteAccount(userId);
+        if (!res.error) {
+            await signOut({ redirectTo: '/signup' });
+        }
+        setLoading(false);
+        setShowConfirm(false);
     };
 
     return (

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { EditIcon } from 'lucide-react';
 import DetailsView from './DetailsView';
 import EditDetailsForm from './EditDetailsForm';
 import AvatarView from "./AvatarView";

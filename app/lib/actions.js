@@ -13,7 +13,7 @@ export async function signupUser(_, formData) {
     const email = formData.get('email');
     const password = formData.get('password');
 
-    const image_url = "/users/rei-sora.png";
+    const image_url = "/users/avatars/default.jpg";
 
     try {
         const existing = await getUser(email);
@@ -90,13 +90,13 @@ export async function updateUserAvatar(userId, avatarFileName) {
     }
 }
 
-export async function deleteAccount(_, userId) {
+export async function deleteAccount(userId) {
     try {
         await sql`
             DELETE FROM users
             WHERE id = ${userId}
         `;
-        await signOut({ redirectTo: '/signup' });
+        return { success: true };
     } catch (err) {
         console.error('Account deletion failed:', err);
         return { error: 'Deletion failed' };
