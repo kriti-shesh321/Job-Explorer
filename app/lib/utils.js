@@ -40,10 +40,8 @@ export function formatSalary(salary = {}) {
   }
 
   if (type === 'fixed' && amount != null) {
-    console.log('Formatting salary:', { amount, currency, period });
     const formattedAmount = millify(Number(amount), { precision: 1 });
     const symbol = currency === 'USD' ? '$' : currency;
-    console.log('Formatted salary:', `${symbol} ${formattedAmount}/${period}`);
     return `${symbol} ${formattedAmount}/${period}`;
   }
 

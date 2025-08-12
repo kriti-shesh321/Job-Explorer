@@ -64,7 +64,7 @@ export default function Navbar() {
               <LogoutButton />
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex gap-3 text-sm md:text-lg font-medium">
               <Link
                 href="/login"
                 className="px-4 py-2 font-medium text-gray-700 hover:text-blue-600"
@@ -84,14 +84,14 @@ export default function Navbar() {
 
       {/* md/sm screen Menu */}
       {mobileOpen && (
-        <div className="lg:hidden mt-4 ">
+        <div className="lg:hidden mt-4">
           <NavLinks onClick={closeMenu} />
           {user ? (
             <div className="flex flex-col gap-3 items-end">
               <LogoutButton />
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-end gap-3 text-sm md:text-lg font-medium md:px-3 space-y-1 mt-2">
               <Link
                 href="/login"
                 onClick={closeMenu}
