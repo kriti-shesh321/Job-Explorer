@@ -10,7 +10,6 @@ export default function CompaniesPage({ companies }) {
         setFloatingOffsets(offsets);
     }, [companies]);
 
-
     return (
         <section className="relative w-full min-h-screen bg-[url('/image.png')] bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400 bg-cover bg-center overflow-hidden py-14 px-6">
 
@@ -35,7 +34,9 @@ export default function CompaniesPage({ companies }) {
                         </div>
                     ))}
                 </div>
+                
             </div>
+
         </section>
     );
 }

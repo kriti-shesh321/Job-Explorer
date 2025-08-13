@@ -58,4 +58,5 @@ export const authConfig = {
       console.error('AUTH ERROR:  ', error);
     }
   },
+  trustHost: true,
 };
